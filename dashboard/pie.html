@@ -1,0 +1,197 @@
+<html>
+<head>
+<script src="helpers.js"></script>
+<script src="formCreator.js"></script>
+
+<style>
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+/*.modal-content {
+	position:absolute;
+	background-color: #fefefe;
+	margin: auto;
+	padding: 20px;
+	border: 1px solid #888;
+	border-radius: 400px;
+}*/
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.choiceMenu {
+	border-radius: 400px;
+	padding: 20px;
+	border:5px;
+	background-color: blue;
+}
+
+div.choiceMenu:hover {
+	background-color: yellow;
+}
+div.choiceMenu:active {
+	background-color: black;
+}
+
+.menuChoice {
+	position: absolute;
+	animation-name: example;
+	  animation-duration: 1s;
+	  animation-iteration-count: 1;
+}
+
+
+@keyframes example {
+  0%   {opacity: 0;}
+  25%  {opacity: 1;}
+  50%  {opacity: 1};
+  100% {opacity: 1;}
+}
+</style>
+
+</head>
+<body>
+	<!-- The Modal -->
+	<div id="myModal" class="modal">
+	  <div id="pieMenuId" class="modal-content">
+	  </div>
+	</div>
+
+
+<script>
+
+let mokeMenu = ["a", "b", "c", "d", "e", "f", "g"];
+let menu = {
+	a:{
+		title:"A",
+		action:()=> log("a")
+	},
+	b:{
+		title:"B",
+		action:()=> log("b")
+	},
+	c:{
+		title:"C",
+		action:()=> log("c")
+	},
+	d:{
+		title:"D",
+		subchoice:{
+			aa:{
+				title:"AA",
+				action:()=> log("aa")
+			},
+			bb:{
+				title:"BB",
+				action:()=> log("bb")
+			}
+		}
+	}
+};
+
+// Get the modal
+var modal = id("myModal");
+
+
+// Get the <span> element that closes the modal
+// var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+/*span.onclick = function() {
+  modal.style.display = "none";
+}*/
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+	if (event.target == modal) {
+		modal.style.display = "none";
+		let children = modal.childNodes;
+		let elem;
+		for(let i = 0 ; (elem = id('choice'+i)) ; i++) {
+			elem.parentNode.removeChild(elem);
+		}
+	}
+}
+
+function newNode(obj) {
+	let node = el("div");
+	node.className = "choiceMenu menuChoice";
+	node.innerHTML = obj.title;
+	if (obj.action) {
+		node.onclick = function(evt) {
+			obj.action();
+		};
+	}
+	if (obj.subchoice) {
+		node.onclick = function(evt) {
+			obj.action();
+		};
+	}
+	
+	return node;
+}
+
+document.body.addEventListener('contextmenu', function(ev) {
+	ev.preventDefault();
+	if (modal.style.display === "block")  return;
+	modal.style.display = "block";
+	/*const count = mokeMenu.length;
+	const portion = 2* Math.PI / count;
+	for (let i = 0 ; i < count ; i++) {
+		let  x = Math.cos(portion * i) * 200;
+		let  y = Math.sin(portion * i)* 200;
+		let elem = newNode();
+		elem.id = "choice"+i;
+		elem.innerHTML = mokeMenu[i];
+		elem.style.top = ev.clientY + y;
+		elem.style.left = ev.clientX + x;
+		modal.appendChild(elem);
+		
+	}*/
+	const count = Object.keys(menu).length;
+	const portion = 2* Math.PI / count;
+	let i = 0;
+	for (let k in menu) {
+		let  x = Math.cos(portion * i) * 200;
+		let  y = Math.sin(portion * i)* 200;
+		let elem = newNode(menu[k]);
+		elem.id = "choice"+i;
+		elem.style.top = ev.clientY + y;
+		elem.style.left = ev.clientX + x;
+		id('pieMenuId').appendChild(elem);
+		i++;
+	}
+	id('pieMenuId').style.top = ev.clientY;
+	id('pieMenuId').style.left = ev.clientX;
+	return false;
+}, false);
+
+</script>
+</body>
+</html>

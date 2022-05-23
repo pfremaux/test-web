@@ -17,3 +17,11 @@ window.onerror = function(a,b,c) {
 	console.log("a="+a+", b="+b+", c="+c);
 	// TODO Send logs to server here.
 };
+
+function log(s) {
+	console.log(s);
+}
+
+function logj(s) {
+	console.log(JSON.stringify(s));
+}
