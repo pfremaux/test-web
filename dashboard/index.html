@@ -1,0 +1,244 @@
+<html>
+<head>
+
+<link rel="stylesheet" href="modal.css">
+
+<style>
+	body {
+		
+	}
+	
+	img {
+		max-width: 100%;
+		max-height: 100%;
+	}
+
+	.page {
+		display: flex;
+		width:100vw;
+		flex-wrap: wrap;
+		flex-direction: row;
+		gap: 10px;
+	}
+	
+	.top-menu {
+		background-color: DodgerBlue;
+		border-radius: 25px;
+		padding: 5px;
+		margin-bottom: 5px;
+		width: 95vw;
+		box-shadow: 3px 1px 6px 2px #888888;
+	}
+	
+	.nested-flex {
+		display:flex;
+		gap: 10px;
+	}
+
+
+	.page-item { 
+		display: flex;
+		background-color: DodgerBlue;
+		flex-direction: row;
+		flex-wrap: wrap;
+		
+		
+		border-radius: 25px;
+		padding: 3px;
+		margin-bottom: 5px;
+		
+		justify-content : center;
+	}
+	.main-layer {
+		width: 75vw;
+		heigth: 70vh;
+		box-shadow: 3px 1px 6px 2px #888888;
+	}
+	.side-layer {
+		width: 20vw;
+	}
+	
+	.foot-layer {
+		width: 95vw;
+	}
+	
+	
+	
+	.vignette {
+		flex-direction: row;
+		background-color: orange;
+		
+		border-radius: 15px;
+		padding: 3px;
+		margin: 5px;
+		width: 100px;
+		box-shadow: 3px 1px 6px 2px #333333;
+	}
+	
+	.vignette > p {
+		margin: 10px;
+	}
+	.vignette > a {
+		display:block;
+		padding: 10px;
+	}
+	
+	div.vignette:hover {
+		background-color: yellow;
+	}
+	div.vignette:active {
+		background-color: black;
+	}
+	
+	.form {
+		background-color: orange;
+		
+		border-radius: 15px;
+		padding: 3px;
+		margin : 3px;
+		width: 100%;
+	}
+	
+	label {
+		vertical-align:top;
+	}
+	
+	img {
+		border-radius: 15px;
+		width: 150px;
+	}
+</style>
+<script src="modal.js"></script>
+<script src="submodal.js"></script>
+<script src="helpers.js"></script>
+<script src="formCreator.js"></script>
+<script src="formNewType.js"></script>
+</head>
+<body>
+
+<div id="modalGlobalId" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span id="modalCloseId" class="close">&times;</span>
+    <div id="modalContentId"></div>
+    <div id="modalControlId"></div>
+  </div>
+
+</div>
+
+	<div class="page">
+		<div id="topMenuId" class="top-menu nested-flex">
+			<div class="vignette">
+				msg in cell 1
+			</div>
+			<div class="vignette">
+				msg in cell 2
+			</div>
+		</div>	
+		<div id="pageItemsId" class="page-item main-layer nested-flex">
+			<div class="vignette">
+				<p>titre</p>
+				<img src="images.jpg"/>
+				<a>lien</a>
+				
+			</div>
+			
+		</div>	
+		<div id="tools" class="page-item side-layer">
+			<div class="form">
+				<h5>truc</h5>
+				<label for="nameId">Name :</label>
+				<input id="nameId" type="text"/>
+				<label for="idRange">my range :</label>
+				<input id="idRange" type="range">
+				<label for="specialFiltersId">Special filters :</label>
+				<select name="specialFilters" id="specialFiltersId">
+				  <option value="done"></option>
+				  <option value="todo">Todo</option>
+				</select><br/>
+				<label for="keywordsId">Keywords :</label>
+				<input id="keywordsId" type="text"/>
+				<button>Save to menu</button>
+			</div>
+		</div>	
+		<div class="page-item foot-layer">
+			side2mkjkjnkjn
+		</div>	
+		
+	</div>
+	
+	
+<script>
+	
+	let page = id("pageItemsId");
+	let topMenu = id("topMenuId");
+	
+	function loadProfile() {
+		addTopMenu("titre", "https://www.google.ca");
+	}
+	
+	function addTopMenu(linkTitle, link) {
+		let d = document.createElement("div");
+		d.innerHTML = linkTitle;
+		d.classList.add("vignette");
+		topMenu.appendChild(d);
+	}
+	
+	function addVignette(title, srcImg, link, linkTitle) {
+		let d = document.createElement("div");
+		let p = document.createElement("p");
+		p.innerHTML = title;
+		let i = document.createElement("img");
+		i.src = srcImg;
+		let a = document.createElement("a");
+		a.href = link;
+		a.innerHTML = linkTitle
+		d.appendChild(p);
+		d.appendChild(i);
+		d.appendChild(a);
+		d.classList.add("vignette");
+		page.appendChild(d);
+	}
+	addVignette('fdsa', "images.jpg", "https://www.google.ca", "title");
+	function hideTools() {
+		document.getElementById('tools').style.display='none';
+		let mainPage = id('pageItemsId');
+		for (let i = 75 ; i <= 95 ; i++) {
+			mainPage.style.width = i + 'vw';
+		}
+	}
+	
+	function showTools() {
+		let mainPage = id('pageItemsId');
+		for (let i = 95 ; i >= 75 ; i--) {
+			mainPage.style.width = i + 'vw';
+		}
+		document.getElementById('tools').style.display='flex';	
+	}
+	id('modalCloseId').addEventListener("click", toggleModal);	
+	loadProfile();
+
+	let metadata = FORM_NEW_TYPE_METADATA;
+	
+	let modalParent = id('modalContentId');
+	let form = new Form(FORM_NEW_TYPE_METADATA).insertIn(modalParent);
+	let modal = new Modal('modalContentId', 'modalContentId', 'modalControlId')
+	.withForm(form)
+	.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
+	modal.toggle();
+	
+	let pfr = new Element('button')
+		.withText('pfr')
+		.onClick(function(evt){console.log(JSON.stringify(evt));})
+		.get();
+	id('modalControlId').appendChild(pfr);
+</script>
+<button onclick="showTools()">+</button>
+<button onclick="hideTools()">-</button>
+<button onclick="toggleModal()">Modal</button>
+<button onclick="removeAllChildren('pageItemsId')">x</button>
+
+
+</body>
+</html>
