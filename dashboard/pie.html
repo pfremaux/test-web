@@ -66,10 +66,14 @@ div.choiceMenu:active {
 	  animation-iteration-count: 1;
 }
 
+.transparent {
+	opacity: 0.25;
+}
+
 
 @keyframes example {
   0%   {opacity: 0;}
-  25%  {opacity: 1;}
+  35%  {opacity: 1;}
   50%  {opacity: 1};
   100% {opacity: 1;}
 }
@@ -86,8 +90,7 @@ div.choiceMenu:active {
 
 <script>
 
-let mokeMenu = ["a", "b", "c", "d", "e", "f", "g"];
-let menu = {
+const menu = {
 	a:{
 		title:"A",
 		action:()=> log("a")
@@ -115,29 +118,19 @@ let menu = {
 	}
 };
 
-// Get the modal
 var modal = id("myModal");
-
-
-// Get the <span> element that closes the modal
-// var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on <span> (x), close the modal
-/*span.onclick = function() {
-  modal.style.display = "none";
-}*/
-
-// When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
 	if (event.target == modal) {
-		modal.style.display = "none";
-		let children = modal.childNodes;
-		let elem;
-		for(let i = 0 ; (elem = id('choice'+i)) ; i++) {
-			elem.parentNode.removeChild(elem);
-		}
+		hideAndCleanPieMenu();
 	}
 }
+
+function hideAndCleanPieMenu() {
+	modal.style.display = "none";
+	removeAllChildren('pieMenuId');
+}
+
+
 
 function newNode(obj) {
 	let node = el("div");
@@ -150,45 +143,55 @@ function newNode(obj) {
 	}
 	if (obj.subchoice) {
 		node.onclick = function(evt) {
-			obj.action();
+			let rect = evt.target.getBoundingClientRect();
+			const x = rect.left;
+			const y = rect.top;
+			drawPieMenu(obj.subchoice, x, y);
 		};
 	}
-	
 	return node;
+}
+
+
+const PIE_MENU_RADIUS = 150;
+const NODE_DIAMETER = 60;
+const MIN_DISTANCE_FROM_SCREEN_BORDER = PIE_MENU_RADIUS + NODE_DIAMETER
+
+function drawPieMenu(menuObj, centerX, centerY) {
+	const pieMenu = id('pieMenuId');
+	for (let i = 0 ; i < pieMenu.children.length ; i++) {
+		pieMenu.children[i].classList.add('transparent');
+	}
+	const effectiveX = Math.max(
+		MIN_DISTANCE_FROM_SCREEN_BORDER, 
+		Math.min(window.innerWidth-MIN_DISTANCE_FROM_SCREEN_BORDER, centerX)
+	);
+	const effectiveY = Math.max(
+		MIN_DISTANCE_FROM_SCREEN_BORDER,
+		Math.min(window.innerHeight-MIN_DISTANCE_FROM_SCREEN_BORDER, centerY)
+	);
+	
+	const count = Object.keys(menuObj).length;
+	const portion = 2* Math.PI / count;
+	let i = 0;
+	for (let k in menuObj) {
+		let  x = Math.cos(portion * i) * PIE_MENU_RADIUS;
+		let  y = Math.sin(portion * i) * PIE_MENU_RADIUS;
+		let elem = newNode(menuObj[k]);
+		elem.style.top = effectiveY + y;
+		elem.style.left = effectiveX + x;
+		pieMenu.appendChild(elem);
+		i++;
+	}
+	pieMenu.style.top = effectiveY;
+	pieMenu.style.left = effectiveX;
 }
 
 document.body.addEventListener('contextmenu', function(ev) {
 	ev.preventDefault();
 	if (modal.style.display === "block")  return;
 	modal.style.display = "block";
-	/*const count = mokeMenu.length;
-	const portion = 2* Math.PI / count;
-	for (let i = 0 ; i < count ; i++) {
-		let  x = Math.cos(portion * i) * 200;
-		let  y = Math.sin(portion * i)* 200;
-		let elem = newNode();
-		elem.id = "choice"+i;
-		elem.innerHTML = mokeMenu[i];
-		elem.style.top = ev.clientY + y;
-		elem.style.left = ev.clientX + x;
-		modal.appendChild(elem);
-		
-	}*/
-	const count = Object.keys(menu).length;
-	const portion = 2* Math.PI / count;
-	let i = 0;
-	for (let k in menu) {
-		let  x = Math.cos(portion * i) * 200;
-		let  y = Math.sin(portion * i)* 200;
-		let elem = newNode(menu[k]);
-		elem.id = "choice"+i;
-		elem.style.top = ev.clientY + y;
-		elem.style.left = ev.clientX + x;
-		id('pieMenuId').appendChild(elem);
-		i++;
-	}
-	id('pieMenuId').style.top = ev.clientY;
-	id('pieMenuId').style.left = ev.clientX;
+	drawPieMenu(menu, ev.clientX, ev.clientY);
 	return false;
 }, false);
 
