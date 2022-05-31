@@ -25,3 +25,31 @@ function log(s) {
 function logj(s) {
 	console.log(JSON.stringify(s));
 }
+
+function hide(o) {
+	if (typeof o === "string") {
+		id(o).style.display = "none";
+	}
+	o.style.display = "none";
+}
+
+function show(o) {
+	if (typeof o === "string") {
+		id(o).style.display = "block";
+	}
+	o.style.display = "block";
+}
+
+let GLOBAL = {
+	tables:{},
+	boxTypes:{},
+	counter:{
+		value:0,
+		reset:function() {
+			GLOBAL.counter.value = 0;
+		},
+		incAndGet:function() {
+			return ++GLOBAL.counter.value;
+		}
+	}
+};

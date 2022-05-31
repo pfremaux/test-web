@@ -1,4 +1,4 @@
-
+ 
 const TYPES = ["text", "combo", "range", "button"];
 
 
@@ -28,8 +28,10 @@ function Element(tagName) {
 			let opt = el('option');
 			opt.value=e.value;
 			opt.innerHTML = e.text;
+			
 			this.element.appendChild(opt);
 		});
+		this.element.addEventListener("change", (e)=> log(e));
 		return this;
 	}; 
 	this.get = function() {
@@ -62,6 +64,7 @@ function InputForm(ident, data) {
 		let input = new Element("button")
 						.withId(ident)
 						.withText(data.label)
+						.onClick(data.onClick)
 						.get();
 		this.elements.push(input);
 	} else {
@@ -76,19 +79,25 @@ function InputForm(ident, data) {
 		});
 	}
 	this.insertIn = function(parent) {
+		let br = el('br');
 		for (let i = 0 ; i < this.elements.length ; i++) {
 			parent.appendChild(this.elements[i]);
+			parent.appendChild(br);
 		}
 		return this;
 	};
 	
 }
 
-function Form(metadata) {
+function Form(metadata, counter) {
+	let suffix = "";
+	if (counter) {
+		suffix += counter.incAndGet();
+	}
 	this.inputForms = [];
 	for (let k in metadata) {
 		let data = metadata[k];
-		this.inputForms.push(new InputForm(k, data));
+		this.inputForms.push(new InputForm(k+suffix, data));
 	}
 	this.insertIn = function(parent) {
 		for (let i = 0 ; i < this.inputForms.length ; i++) {

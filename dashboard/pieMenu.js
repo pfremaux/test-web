@@ -34,7 +34,7 @@ const menu = {
 	}
 };
 
-var modal = id("myModal");
+var modal = id("greyedZoneId");
 window.onclick = function(event) {
 	if (event.target == modal) {
 		hideAndCleanPieMenu();
@@ -48,7 +48,7 @@ function hideAndCleanPieMenu() {
 
 function newNode(obj) {
 	let node = el("div");
-	node.className = "choiceMenu menuChoice";
+	node.className = "choiceMenu menuNode";
 	node.innerHTML = obj.title;
 	if (obj.action) {
 		node.onclick = function(evt) {

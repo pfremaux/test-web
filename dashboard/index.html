@@ -117,15 +117,24 @@
 <body>
 
 <div id="modalGlobalId" class="modal">
-
   <!-- Modal content -->
   <div class="modal-content">
     <span id="modalCloseId" class="close">&times;</span>
     <div id="modalContentId"></div>
     <div id="modalControlId"></div>
   </div>
-
+ 
 </div>
+
+ <div id="subModalGlobalId" class="modal">
+  <!-- Modal content -->
+  <div class="sub-modal-content">
+    <span id="subModalCloseId" class="close">&times;</span>
+    <div id="subModalContentId"></div>
+    <div id="subModalControlId"></div>
+  </div>
+</div>
+
 
 	<div class="page">
 		<div id="topMenuId" class="top-menu nested-flex">
@@ -217,20 +226,72 @@
 		document.getElementById('tools').style.display='flex';	
 	}
 	id('modalCloseId').addEventListener("click", toggleModal);	
+	
 	loadProfile();
 
 	let metadata = FORM_NEW_TYPE_METADATA;
 	
 	let modalParent = id('modalContentId');
 	let form = new Form(FORM_NEW_TYPE_METADATA).insertIn(modalParent);
-	let modal = new Modal('modalContentId', 'modalContentId', 'modalControlId')
-	.withForm(form)
-	.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
-	modal.toggle();
+	let subModal = new Modal('subModalGlobalId', 'subModalContentId', 'subModalControlId')
+	id('subModalCloseId').addEventListener("click", (e) => subModal.toggle());	
+	let modal = new Modal('modalGlobalId', 'modalContentId', 'modalControlId')
+		.withForm(form)
+		.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
+	//modal.toggle();
 	
 	let pfr = new Element('button')
 		.withText('pfr')
-		.onClick(function(evt){console.log(JSON.stringify(evt));})
+		.onClick(function(evt) {
+			let parentDiv = id('modalContentId');
+			let boxForm = {};
+			log(parentDiv.children);
+			for (let i = 0 ; i < parentDiv.children.length ; i++) {
+				if (parentDiv.children[i].tagName === "LABEL") {
+					let isLabelDefinition = parentDiv.children[i].id.startsWith("inputLabelId");
+					let isIdDefinition = parentDiv.children[i].id.startsWith("inputIdId");
+					log("id = "+parentDiv.children[i].id);
+					let isTypeDefinition = parentDiv.children[i].id.startsWith("inputTypeId");
+					let input = parentDiv.children[i].nextSibling;
+					let elementFormSetting = {
+						id:"<not set>",
+						label:"<not set>",
+						type:"<not set>"
+					};
+					if (input.tagName === "INPUT") {
+						if (input.type === "text") {
+							if (isLabelDefinition) {
+								elementFormSetting.label = input.value;
+							} else if (isIdDefinition) {
+								elementFormSetting.id = input.value;
+							} else if (isTypeDefinition) {
+								elementFormSetting.type = input.value;
+							} 
+						}
+					} else if (input.tagName === "SELECT") {
+						if (isLabelDefinition) {
+							elementFormSetting.label = input.value;
+						} else if (isIdDefinition) {
+							elementFormSetting.id = input.value;
+						} else if (isTypeDefinition) {
+							elementFormSetting.type = input.value;
+						} 
+					} else {
+						console.warn("not yet supported.");
+					}
+					boxForm[elementFormSetting.id] = {
+						label:elementFormSetting.label,
+						type:elementFormSetting.type
+					};
+					
+				}
+			}
+			log(boxForm);
+			/*subModal
+					.withForm(boxForm)
+					.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
+					subModal.toggle();*/
+		})
 		.get();
 	id('modalControlId').appendChild(pfr);
 </script>
