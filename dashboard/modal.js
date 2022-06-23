@@ -21,21 +21,27 @@ function Modal(idModal, idContent, idControl) {
 		let modal = id(this.modalId);
 		let display = modal.style.display;
 		modal.style.display = display === 'block' ? 'none' : 'block';
+		if (modal.style.display === 'none') {
+			removeAllChildren(this.contentId);
+			removeAllChildren(this.controlId);
+		}
 		return this;
 	};
 	this.onSubmit = function(saveLocation) {
 		let inputIdsToValue = {};
+		let currentModal = this;
 		this.submit = function(evt) {
-			for(let i = 0 ; i < this.form.inputForms.length ; i++) {
-				this.form.inputForms[i].inputIdToValueBuilder.forEach(fn => {
+			for(let i = 0 ; i < currentModal.form.inputForms.length ; i++) {
+				currentModal.form.inputForms[i].inputIdToValueBuilder.forEach(fn => {
 					let map = fn();
 					for (let k in map) {
-						inputIdsToValue[k] = map[k].value;
+						inputIdsToValue[k] = map[k];
 					}
 				});
 			}
+			log(inputIdsToValue);
 			saveLocation.accept(inputIdsToValue);
-			this.toggle();
+			currentModal.toggle();
 		};
 		
 		return this;

@@ -223,7 +223,7 @@
 		for (let i = 95 ; i >= 75 ; i--) {
 			mainPage.style.width = i + 'vw';
 		}
-		document.getElementById('tools').style.display='flex';	
+		document.getElementById('tools').style.display='flex';
 	}
 	id('modalCloseId').addEventListener("click", toggleModal);	
 	
@@ -240,35 +240,27 @@
 		.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
 	//modal.toggle();
 	
-	let pfr = new Element('button')
-		.withText('pfr')
+	let saveTypeButton = new Element('button')
+		.withText('Save type')
 		.onClick(function(evt) {
 			let parentDiv = id('modalContentId');
 			let boxForm = {};
-			log(parentDiv.children);
+			//log(parentDiv.children);
+			let elementFormSetting = {
+				id:undefined,
+				label:undefined,
+				type:undefined
+			};
 			for (let i = 0 ; i < parentDiv.children.length ; i++) {
-				if (parentDiv.children[i].tagName === "LABEL") {
+				if (parentDiv.children[i].tagName === "INPUT") {
 					let isLabelDefinition = parentDiv.children[i].id.startsWith("inputLabelId");
 					let isIdDefinition = parentDiv.children[i].id.startsWith("inputIdId");
-					log("id = "+parentDiv.children[i].id);
+					//log("id = "+parentDiv.children[i].id);
 					let isTypeDefinition = parentDiv.children[i].id.startsWith("inputTypeId");
-					let input = parentDiv.children[i].nextSibling;
-					let elementFormSetting = {
-						id:"<not set>",
-						label:"<not set>",
-						type:"<not set>"
-					};
-					if (input.tagName === "INPUT") {
-						if (input.type === "text") {
-							if (isLabelDefinition) {
-								elementFormSetting.label = input.value;
-							} else if (isIdDefinition) {
-								elementFormSetting.id = input.value;
-							} else if (isTypeDefinition) {
-								elementFormSetting.type = input.value;
-							} 
-						}
-					} else if (input.tagName === "SELECT") {
+					let isAllowedValues = parentDiv.children[i].id.startsWith("hiddenAllowedValuesId");
+					let input = parentDiv.children[i];//.nextSibling
+				
+					if (input.type === "text") {
 						if (isLabelDefinition) {
 							elementFormSetting.label = input.value;
 						} else if (isIdDefinition) {
@@ -276,28 +268,72 @@
 						} else if (isTypeDefinition) {
 							elementFormSetting.type = input.value;
 						} 
-					} else {
-						console.warn("not yet supported.");
+					} else if (input.type === "hidden" && isAllowedValues) {
+						elementFormSetting.allowedValues = input.value;
 					}
+				
+				} else if (parentDiv.children[i].tagName === "SELECT") {
+					elementFormSetting.type = parentDiv.children[i].value;
+				} else {
+					//console.warn("not yet supported. " + parentDiv.children[i].tagName);
+				}
+				if (elementFormSetting.id && elementFormSetting.label && elementFormSetting.type === "text"
+				|| elementFormSetting.id && elementFormSetting.label && elementFormSetting.type === "combo" && elementFormSetting.allowedValues) {
 					boxForm[elementFormSetting.id] = {
 						label:elementFormSetting.label,
-						type:elementFormSetting.type
+						type:elementFormSetting.type,
+						allowedValues:elementFormSetting.allowedValues
 					};
-					
+					elementFormSetting.id = undefined;
+					elementFormSetting.label = undefined;
+					elementFormSetting.type = undefined;
+					elementFormSetting.allowedValues = undefined;
 				}
 			}
 			log(boxForm);
+			let newTypeId = id('typeId').value;
+			GLOBAL.boxTypes[newTypeId] = boxForm;
+			let vignette = el('div');
+			vignette.classList.add('vignette');
+			vignette.innerHTML = newTypeId;
+			id('topMenuId').appendChild(vignette);
+			//todo add evt listenr showItems(boxTypeId)
+			// TODO clear fields ?
+			modal.toggle();
 			/*subModal
 					.withForm(boxForm)
 					.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
 					subModal.toggle();*/
 		})
 		.get();
-	id('modalControlId').appendChild(pfr);
+	id('modalControlId').appendChild(saveTypeButton);
+
+	function showItems(boxTypeId) {
+		removeAllChildren('pageItemsId');
+		let page = (GLOBAL.tables[boxTypeId] | [{}])[0];
+		for (let i = 0 ; i < page.length ; i++) {
+			addVignette(page[i].title);
+		}
+		currentBoxType = boxTypeId;
+	}
+
+	function createVignette() {
+		let boxDefinition = GLOBAL.boxTypes[currentBoxType];
+		for (let idRow in boxDefinition) {
+			for (let idElem in boxDefinition[idRow]) {
+				let label = boxDefinition[idRow][idElem].label;
+				let type =  boxDefinition[idRow][idElem].type;
+				log(label + ' of type ' + type);
+			}
+		}
+	}
+	// TODO move in GLOBAL
+	let currentBoxType = "";
 </script>
 <button onclick="showTools()">+</button>
 <button onclick="hideTools()">-</button>
 <button onclick="toggleModal()">Modal</button>
+<button onclick="createVignette()">ADd</button>
 <button onclick="removeAllChildren('pageItemsId')">x</button>
 
 

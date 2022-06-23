@@ -28,6 +28,7 @@ function logj(s) {
 
 function hide(o) {
 	if (typeof o === "string") {
+		log("cache "+o);
 		id(o).style.display = "none";
 	}
 	o.style.display = "none";
@@ -35,9 +36,9 @@ function hide(o) {
 
 function show(o) {
 	if (typeof o === "string") {
-		id(o).style.display = "block";
+		id(o).style.display = "inline";
 	}
-	o.style.display = "block";
+	o.style.display = "inline";
 }
 
 let GLOBAL = {

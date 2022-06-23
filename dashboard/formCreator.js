@@ -24,14 +24,21 @@ function Element(tagName) {
 		if (this.element.type !== "select") {
 			// TODO ERROR
 		}
+		let actions = {};
 		options.forEach(e => {
 			let opt = el('option');
 			opt.value=e.value;
 			opt.innerHTML = e.text;
 			
 			this.element.appendChild(opt);
+			actions[e.value] = e.change;
 		});
-		this.element.addEventListener("change", (e)=> log(e));
+		this.element.addEventListener("change", (e)=> {
+			let v = e.target.value;
+			log(v);
+			actions[v](e);
+			//log(e);
+		});
 		return this;
 	}; 
 	this.get = function() {
@@ -86,7 +93,6 @@ function InputForm(ident, data) {
 		}
 		return this;
 	};
-	
 }
 
 function Form(metadata, counter) {
