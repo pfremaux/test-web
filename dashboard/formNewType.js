@@ -26,7 +26,7 @@ const FORM_NEW_INPUT_TYPE_METADATA = {
 	inputTypeId: {
 		label:"Input type: ",
 		type:"combo",
-		possibleValues: [
+		allowedValues: [
 			{value:"combo", text:"Select list", change:(e)=> show(e.target.nextSibling.nextSibling)},
 			{value:"text", text:"Text", change:(e)=> hide(e.target.nextSibling.nextSibling) },
 		]
@@ -53,7 +53,33 @@ const FORM_NEW_INPUT_TYPE_METADATA = {
 		type:"hidden"
 	}
 };
-
+const FORM_VIEW_METADATA = {
+	titleId: {
+		label:"Title field: ",
+		type:"combo",
+		allowedValues: [// dynamic list based on all ID (with input type between parenthesis)
+			{value:"combo", text:"Select list", change:(e)=> show(e.target.nextSibling.nextSibling)}
+		]
+	},
+	actionTitleId: {
+		label:"Action title field: ",
+		type:"combo",
+		allowedValues: [// dynamic list based on all ID (with input type between parenthesis)
+			{value:"combo", text:"Select list", change:(e)=> show(e.target.nextSibling.nextSibling)}
+		]
+	},
+	ImageId: {
+		label:"Image : ",
+		type:"combo",
+		allowedValues: [// dynamic list based on all ID or a default image or a deducted one
+			{value:"default", text:"Default", change:(e)=> log(e)},
+			{value:"calculated", text:"Calculated", change:(e)=> log(e)},
+		]
+	}
+	
+	// TODO PFR action by itself will be defined in another form
+	
+};
 
 const SUB_MODAL_ALLOWED_VALUES_METADATA = {
 	technicalValueAllowedId: {

@@ -17,13 +17,16 @@ function Modal(idModal, idContent, idControl) {
 		this.form=formInstance;
 		return this;
 	};
+	this.clear = () => {
+		removeAllChildren(this.contentId);
+		removeAllChildren(this.controlId);
+	};
 	this.toggle = () => {
 		let modal = id(this.modalId);
 		let display = modal.style.display;
 		modal.style.display = display === 'block' ? 'none' : 'block';
 		if (modal.style.display === 'none') {
-			removeAllChildren(this.contentId);
-			removeAllChildren(this.controlId);
+			this.clear();
 		}
 		return this;
 	};
@@ -39,7 +42,7 @@ function Modal(idModal, idContent, idControl) {
 					}
 				});
 			}
-			log(inputIdsToValue);
+			log("on submit : "+ JSON.stringify(inputIdsToValue));
 			saveLocation.accept(inputIdsToValue);
 			currentModal.toggle();
 		};
@@ -50,6 +53,7 @@ function Modal(idModal, idContent, idControl) {
 		let controlDiv = id(this.controlId);
 		let btn = new Element('button').withText('Submit').onClick(this.submit);
 		controlDiv.appendChild(btn.get());	
+		return this;
 	};
 	
 }

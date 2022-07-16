@@ -57,9 +57,16 @@ function InputForm(ident, data) {
 				.get());
 	}
 	if (data.type === 'combo') {
+		let options = [];
+		if (typeof data.allowedValues === "string") {
+			options = data.allowedValues.split(";");
+		}else {
+			options =  data.allowedValues;
+		}
+		
 		let input = new Element('select')
 						.withId(ident)
-						.withPossibleValues(data.possibleValues)
+						.withPossibleValues(options)
 						.get();
 		this.elements.push(input);
 		this.inputIdToValueBuilder.push(() => {

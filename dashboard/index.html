@@ -269,7 +269,7 @@
 							elementFormSetting.type = input.value;
 						} 
 					} else if (input.type === "hidden" && isAllowedValues) {
-						elementFormSetting.allowedValues = input.value;
+						elementFormSetting.allowedValues = input.value.substring(1);
 					}
 				
 				} else if (parentDiv.children[i].tagName === "SELECT") {
@@ -293,11 +293,19 @@
 			log(boxForm);
 			let newTypeId = id('typeId').value;
 			GLOBAL.boxTypes[newTypeId] = boxForm;
+			GLOBAL.tablesPages[newTypeId] = [];
+			// Index 0 contains meta data
+			// TODO PFR ajouter view rule in meta data
+			GLOBAL.tablesPages[newTypeId].push({
+				pageSize:PAGE_SIZE,
+				format:boxForm// TODO PFR confirmer c la bonne place et remove .boxTypes[]
+			});
 			let vignette = el('div');
 			vignette.classList.add('vignette');
 			vignette.innerHTML = newTypeId;
 			id('topMenuId').appendChild(vignette);
 			//todo add evt listenr showItems(boxTypeId)
+			vignette.addEventListener("click", showItems);
 			// TODO clear fields ?
 			modal.toggle();
 			/*subModal
@@ -308,34 +316,123 @@
 		.get();
 	id('modalControlId').appendChild(saveTypeButton);
 
-	function showItems(boxTypeId) {
+	function showItems(evt) {
+		log(evt.target.innerHTML);
+		let boxTypeId = evt.target.innerHTML;
 		removeAllChildren('pageItemsId');
-		let page = (GLOBAL.tables[boxTypeId] | [{}])[0];
+		let page = (GLOBAL.tables[boxTypeId] | [{}]);
 		for (let i = 0 ; i < page.length ; i++) {
 			addVignette(page[i].title);
 		}
-		currentBoxType = boxTypeId;
+		GLOBAL.currentBoxType = boxTypeId;
+	}
+
+	function createBoxType() {
+		modal.clear();
+		let form = new Form(FORM_NEW_TYPE_METADATA).insertIn(modalParent);
+		id('subModalCloseId').addEventListener("click", (e) => subModal.toggle());	
+		modal.withForm(form)
+			.onSubmit({accept:(obj) => console.log('accept called with param : '+JSON.stringify(obj))});
+		id('modalControlId').appendChild(saveTypeButton);
+		modal.toggle();
 	}
 
 	function createVignette() {
-		let boxDefinition = GLOBAL.boxTypes[currentBoxType];
-		for (let idRow in boxDefinition) {
-			for (let idElem in boxDefinition[idRow]) {
-				let label = boxDefinition[idRow][idElem].label;
-				let type =  boxDefinition[idRow][idElem].type;
-				log(label + ' of type ' + type);
-			}
-		}
+		let boxDefinition = GLOBAL.boxTypes[GLOBAL.currentBoxType];
+		modal.clear();
+		boxDefinition['id'] = {
+			allowedValues: undefined,
+			label: "ID",
+			type: "text"
+		};
+		log(boxDefinition);
+		form = new Form(boxDefinition).insertIn(modalParent);
+		modal.withForm(form)
+			.onSubmit({accept:(obj) => saveVignette(obj)})
+			.build()
+			.toggle();
 	}
+	
+	function saveVignette(obj) {
+		let boxType = GLOBAL.currentBoxType;
+		GLOBAL.tables[boxType][obj.id] = obj;
+		let pageSize = GLOBAL.tablesPages[boxType][0].pageSize;
+		let lastPage = GLOBAL.tablesPages[boxType].length-1;
+		// elementsInPage = Object.keys(GLOBAL.tablesPages[boxType][lastPage]).length;
+		elementsInPage = GLOBAL.tablesPages[boxType][lastPage].length;
+		if (elementsInPage >= pageSize) {
+			GLOBAL.tablesPages[boxType].push([obj.id]);
+		} else {
+			GLOBAL.tablesPages[boxType][lastPage].push(obj.id);
+		}
+		log("Save vignette : "+boxType + " = "+GLOBAL.tablesPages[boxType]);
+		log("Save vignette : "+boxType + " = "+ JSON.stringify(GLOBAL.tables[boxType]));
+		// TODO PFR define view rule per tables
+		// TODO PFR refresh dashboard
+	}
+
+	function setVignetteView() {
+		let boxDefinition = GLOBAL.boxTypes[GLOBAL.currentBoxType];
+		modal.clear();
+		// list keys in boxDefinition for allowed values
+		
+	}
+
+	function refreshDashboard() {
+		removeAllChildren('pageItemsId');
+		let boxType = GLOBAL.currentBoxType;
+		if (!boxType) {
+			log("boxType est vide");
+			return;
+		}
+		if (GLOBAL.tablesPages[boxType].length <= 1) {
+			log("No element found of type : " + boxType);
+			return;
+		}
+		let pageIds = GLOBAL.tablesPages[boxType][1];
+		pageIds.forEach(element => {
+			let obj = GLOBAL.tables[boxType][element.id];
+			let params = [];
+			for (let k in obj) {
+				params.push(obj[k]);
+			}
+			log(params);
+			addVignette(params[0], "","", params[1]);
+		});
+		// TODO PFR 
+	}
+
 	// TODO move in GLOBAL
-	let currentBoxType = "";
+	GLOBAL.currentBoxType = "";
 </script>
 <button onclick="showTools()">+</button>
 <button onclick="hideTools()">-</button>
-<button onclick="toggleModal()">Modal</button>
+<button onclick="createBoxType()">Modal</button>
+<button onclick="toggleModal()">Modal Legacy </button>
 <button onclick="createVignette()">ADd</button>
+<button onclick="setVignetteView()">Setup view</button>
+
+<button onclick="refreshDashboard()">refreshDashboard</button>
+
 <button onclick="removeAllChildren('pageItemsId')">x</button>
 
+<script>
+let initType = {
+		idRow: {
+			allowedValues: undefined,
+			label: "ff",
+			type: "text"
+		}
+	};
+GLOBAL.boxTypes["gg"] = initType;
+GLOBAL.tables["gg"] = {};
+GLOBAL.tablesPages["gg"] = [[]];
+let vignette = el('div');
+vignette.classList.add('vignette');
+vignette.innerHTML = "gg";
+id('topMenuId').appendChild(vignette);
+vignette.addEventListener("click", showItems);
+</script>
 
 </body>
 </html>

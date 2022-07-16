@@ -41,7 +41,9 @@ function show(o) {
 	o.style.display = "inline";
 }
 
+const PAGE_SIZE = 5;
 let GLOBAL = {
+	tablesPages:{},
 	tables:{},
 	boxTypes:{},
 	counter:{
